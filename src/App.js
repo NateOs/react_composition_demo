@@ -2,26 +2,31 @@ import "./App.css";
 import React, { useState } from "react";
 
 //* Main Parent Component
+
+let Context = React.createContext();
+
 function App() {
   let [currentUser, setCurrentUser] = useState(null);
   return (
-    <div
-      className="App"
-      style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-      <div style={{ backgroundColor: "lightgray" }}>
-        <Header />
+    <Context.Provider value={{ currentUser }}>
+      <div
+        className="App"
+        style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+        <div style={{ backgroundColor: "lightgray" }}>
+          <Header />
+        </div>
+        <div style={{ flex: 1 }}>
+          {currentUser ? (
+            <Dashboard />
+          ) : (
+            <LoginScreen onLogin={() => setCurrentUser({ name: "John Doe" })} />
+          )}
+        </div>
+        <div style={{ backgroundColor: "lightgray" }}>
+          <Footer />
+        </div>
       </div>
-      <div style={{ flex: 1 }}>
-        {currentUser ? (
-          <Dashboard user={currentUser} />
-        ) : (
-          <LoginScreen onLogin={() => setCurrentUser({ name: "John Doe" })} />
-        )}
-      </div>
-      <div style={{ backgroundColor: "lightgray" }}>
-        <Footer />
-      </div>
-    </div>
+    </Context.Provider>
   );
 }
 
@@ -39,14 +44,28 @@ function LoginScreen({ onLogin }) {
   );
 }
 
-function Dashboard({ user }) {
+function Dashboard() {
   return (
     <div>
       <h2>The Dashboard</h2>
       <DashboardNav />
-      <DashboardContent user={user} />
+      <DashboardContent />
     </div>
   );
+}
+
+function DashboardContent() {
+  return (
+    <div>
+      <h3>Dashboard Content</h3>
+      <WelcomeMessage />
+    </div>
+  );
+}
+
+function WelcomeMessage() {
+  let { currentUser } = React.useContext(Context);
+  return <div>Welcome {currentUser.name}</div>;
 }
 
 function DashboardNav() {
@@ -55,19 +74,6 @@ function DashboardNav() {
       <h3>Dashboard Nav</h3>
     </div>
   );
-}
-
-function DashboardContent({ user }) {
-  return (
-    <div>
-      <h3>Dashboard Content</h3>
-      <WelcomeMessage user={user} />
-    </div>
-  );
-}
-
-function WelcomeMessage({ user }) {
-  return <div>Welcome {user.name}</div>;
 }
 
 function Footer() {
